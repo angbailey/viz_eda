@@ -2,6 +2,8 @@
 title: "viz_eda"
 output: github_document
 date: "2025-09-30"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -32,7 +34,8 @@ weather_df |>
 
 ## Scales
 ```{r}
-weather_df |> 
+ggp_temp = 
+  weather_df |> 
   ggplot(aes(x = tmin, y = tmax)) +
   geom_point(aes(color = name), alpha = 0.5) +
   #adding labels
@@ -52,12 +55,38 @@ weather_df |>
     name = "Location", 
     discrete = TRUE
   )
+
 ```
 
 
+Update Base Plot
+```{r}
+ggp_temp +
+  theme_dark() +
+  theme(legend.position = "bottom") 
+
+print(ggp_temp)
+```
 
 
+## Adding data in geoms
 
+```{r}
+central_park_df =
+  weather_df |> 
+  filter(name == "CentralPark_NY")
+
+
+molokai_df =
+  weather_df |> 
+  filter(name == "Molokai_HI")
+
+#use on dataset for one part of my plot and bring in another dataset
+ggplot(data = molokai_df, aes(x = date, y = tmax, color = name)) +
+  geom_point() +
+  geom_line(data = central_park_df)
+
+```
 
 
 
