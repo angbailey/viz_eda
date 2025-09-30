@@ -17,6 +17,47 @@ data("weather_df")
 ```{r}
 weather_df |> 
   ggplot(aes(x = tmin, y = tmax)) +
-  geom_point(aes(color = name), alpha = 0.5)
+  geom_point(aes(color = name), alpha = 0.5) +
+  #adding labels
+  labs(
+    x = "Minimum daily temp",
+    y = "Maximum daily temp",
+    title = "Temperature scatterplot",
+    caption = "Data from NOAA",
+    color = "Location"
+  )
 ```
+
+
+
+## Scales
+```{r}
+weather_df |> 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) +
+  #adding labels
+  labs(
+    x = "Minimum daily temp",
+    y = "Maximum daily temp",
+    title = "Temperature scatterplot",
+    caption = "Data from NOAA",
+    color = "Location") +
+  #trying to change something on x-axis and x-axis is continuous
+  scale_x_continuous(
+    breaks = c(-20,0,25),
+    labels = c("-20C","0","25")
+  ) +
+  #changing color palette
+  viridis::scale_color_viridis(
+    name = "Location", 
+    discrete = TRUE
+  )
+```
+
+
+
+
+
+
+
 
