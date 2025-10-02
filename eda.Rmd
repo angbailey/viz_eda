@@ -1,29 +1,183 @@
 ---
-etitle: "eda"
-output: html_document
+title: "EDA"
+output: github_document
 date: "2025-10-02"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+```{r}
+library(tidyverse)
+library(p8105.datasets)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
 ```
 
-## R Markdown
+Import the weather data
+```{r}
+data("weather_df")
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+weather_df = 
+  weather_df |>
+  mutate(
+    month = lubridate::floor_date(date, unit = "month"))
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+#lubridate: functions for working with date variables
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+Make plots
+```{r}
+weather_df |> 
+  ggplot(aes(x = prcp)) +
+  geom_histogram()
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Check on extreme values
+```{r}
+weather_df |> 
+  filter(prcp > 1000)
+```
+
+
+
+Look at data again
+```{r}
+weather_df |> 
+  filter(tmax >= 20, tmax <= 30) |> 
+  ggplot(aes(x = tmin, y = tmax, color = name, shape = name)) +
+  geom_point(alpha = .75)
+```
+
+
+## add groups
+
+```{r}
+weather_df |> 
+  group_by(name, month) #24 months in 3 locations, so 72 groups
+```
+
+
+```{r}
+weather_df |> 
+  group_by(name) |> 
+  summarize(
+    n = n() #gives number of observations for each group
+  )
+```
+
+
+
+```{r}
+weather_df |> 
+  group_by(month) |> 
+  summarize(
+    n = n()
+  )
+```
+
+
+
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    n = n()
+  )
+```
+
+distinct function
+
+```{r}
+weather_df |> 
+  group_by(month) |> 
+  summarize(
+    n = n_distinct(date)
+  )
+#counts distinct instances, in Jan there are 31 distinct dates
+```
+
+
+You can count directly
+
+```{r}
+weather_df |> 
+  count(name)
+```
+
+
+## More interesting summaries
+
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE),
+    median_tmin = median(tmin, na.rm = TRUE),
+    sd_prcp = sd(prcp, na.rm = TRUE)
+  )
+#grouping by name and month: for each of the 24 months for each location what is the mean, median,...
+```
+
+
+This is still a dataframe
+
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  ) |> 
+  ggplot(aes(x = month, y = mean_tmax, color = name)) +
+  geom_point() +
+  geom_line()
+```
+
+cleaning up table to make more readable
+```{r}
+weather_df |> 
+  group_by(name, month) |> 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  ) |> 
+  pivot_wider(
+    names_from = name,
+    values_from = mean_tmax
+  ) |> 
+  knitr::kable(digits = 2) #two decimal points
+``` 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
